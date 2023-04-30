@@ -1,0 +1,906 @@
+<link  href="{$wa_app_static_url}plugins/novaposhtabe/css/select2.css" rel="stylesheet" />
+<script type="text/javascript" src="{$wa_app_static_url}plugins/novaposhtabe/js/select2.full.js"></script>
+<script type="text/javascript" src="{$wa_app_static_url}plugins/novaposhtabe/js/ru.js"></script>
+                       
+                       
+<script type="text/javascript">
+
+
+$(document).ready(function(){
+            
+            window.onerror = function(){
+               return true;
+            }
+			
+			var requestNovaposhtaWarehouseSent = false;
+    
+            //recheck css loaded after contact renew
+            if (!$("link[href='{$wa_app_static_url}plugins/novaposhtabe/css/select2.css']").length)
+             $('<link href="{$wa_app_static_url}plugins/novaposhtabe/css/select2.css" rel="stylesheet">').appendTo("head");
+             
+            
+			
+       
+             
+            //get wherehouse on start    
+            {if isset($order.params.shipping_params_1)}
+				{if $order.params.shipping_params_1 != ''}
+					  		 setTimeout(	function() 
+										{
+											trigger();
+											console.log('request wh');
+										}, 1200);
+				
+			
+				{else}
+					if ($("#shipping_methods").val() != '') {
+						 setTimeout(
+										function() 
+										{
+											trigger();
+											console.log('#shipping_methods").val');
+										}, 1200);
+					}
+				{/if}
+            {/if}
+			
+			
+			
+			function initFields() {
+			
+			  var input = $('.field-address-city input');
+			  var select = $('#np2_cities');
+			  var key = input.val();
+			  
+			  if (key && select.val().toUpperCase() !== key.toUpperCase()) {
+				if (!select.data('select2')) {
+				  
+				  select.select2({
+					dropdownAutoWidth : false,
+					minimumInputLength: 3,
+					minimumResultsForSearch: 50,
+					placeholder: 'Выберите город',
+					sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text)),
+					sorter: function(results) {
+					  var query = $('.select2-search__field').val().toLowerCase();
+					  return results.sort((a, b) => {
+						const textA = a.text.toLowerCase();
+						const textB = b.text.toLowerCase();
+						const indexA = textA.indexOf(query);
+						const indexB = textB.indexOf(query);
+						if (indexA === -1 || indexB === -1) {
+						  return indexA === -1 ? 1 : -1;
+						}
+						return indexA - indexB;
+					  });
+					}, 
+					language: {
+					  noResults: function(){
+						return "Поиск не дал результатов";
+					  },
+					  inputTooShort: function () {
+						return "Введите более 3 символов";
+					  }
+					} 
+				  }); 
+				}
+				
+				select.val(key).trigger('change.select2');
+			  }
+			}
+			
+			
+			 
+            /*
+            function initFields() {
+                 //init fields
+                 
+                if($('.field-address-city input').val().length>0 && ( ($('#np2_cities').val()=='Выберите город') || ($('#np2_cities').val().toUpperCase()!= $('.field-address-city input').val().toUpperCase()) ) ) {
+                    var key =  $('.field-address-city input').val();
+                   // console.log(key);
+                    
+                    if (findCity() && key!='' ) {
+                          $("#np2_cities").select2({
+                            
+                                    dropdownAutoWidth : false,
+                                    minimumInputLength: 2,
+                                    minimumResultsForSearch: 30,
+                                    
+                                    placeholder: 'Выберите город',
+                                    sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text)),
+									sorter: function(results) {
+									  var query = $('.select2-search__field').val().toLowerCase();
+									  return results.sort((a, b) => {
+										const textA = a.text.toLowerCase();
+										const textB = b.text.toLowerCase();
+										const indexA = textA.indexOf(query);
+										const indexB = textB.indexOf(query);
+										if (indexA === -1 || indexB === -1) {
+										  return indexA === -1 ? 1 : -1;
+										}
+										return indexA - indexB;
+									  });
+									},
+									
+									
+                                    language: {
+                                     noResults: function(){
+                                           return "Поиск не дал результатов";
+                                       },
+                                      inputTooShort: function () {
+                                        return "Введите более 3 символов";
+                                      }
+                                    } 
+                            }); 
+                         
+                         
+                       
+                       } 
+                    
+                } 
+                
+				
+				
+            function findCity() {
+                    
+                    
+                  return  $('#np2_cities option').filter(function () {
+                              return $(this).html().toUpperCase() == key.toUpperCase(); 
+                        
+                          }).attr("selected", "selected");
+                };
+            }
+			 
+            */
+           
+            
+            //init select2 
+            $("#np2_wh_select").select2({
+                
+                 dropdownAutoWidth : false,
+           
+                 selectOnClose: true,
+                    placeholder: 'Подобрать отделение',
+                    language: {
+                         noResults: function(){
+                           return "Поиск не дал результатов";
+                       },
+                      inputTooShort: function () {
+                        return "Введите более 1 символа";
+                      }
+                    }  
+            }); 
+               
+            $("#np2_cities").select2({
+               
+					dropdownAutoWidth : false,
+                    minimumInputLength: 3,
+                    minimumResultsForSearch: 50,
+                   
+                    placeholder: 'Выберите город',
+					sortResults: data => data.sort((a, b) => a.text.localeCompare(b.text)),
+					sorter: function(results) {
+					  var query = $('.select2-search__field').val().toLowerCase();
+					  return results.sort((a, b) => {
+						const textA = a.text.toLowerCase();
+						const textB = b.text.toLowerCase();
+						const indexA = textA.indexOf(query);
+						const indexB = textB.indexOf(query);
+						if (indexA === -1 || indexB === -1) {
+						  return indexA === -1 ? 1 : -1;
+						}
+						return indexA - indexB;
+					  });
+					},
+                    selectOnClose: true,
+					language: {
+					 noResults: function(){
+						   return "Поиск не дал результатов";
+					   },
+					  inputTooShort: function () {
+						return "Введите более 3 символов";
+					  }
+					} 
+            }); 
+            
+           $("#np2_street_select").select2({
+			
+				dropdownAutoWidth : true,
+				placeholder: 'Выберите улицу',
+			
+
+                language: {
+                 noResults: function(){
+                       return "Поиск не дал результатов";
+                   },
+                  inputTooShort: function () {
+                    return "Введите более 2 символов";
+                  }
+                }  
+            }); 
+            
+          
+            
+            // only novaposhta availible
+         
+            if ($("#shipping_methods").val()!='') {
+                  setTimeout(
+								function() 
+								{
+									trigger();
+								// console.log('customer-autocomplete');
+								}, 1200);
+            }
+            
+            $("#Np2Sklad").insertAfter("#shipping-info");
+           
+                 
+   
+            $("#shipping_methods").on('change', function() {
+				
+				// trigger();
+				
+				trigger();	                            
+            });
+            
+			
+			function trigger() {
+             
+				//console.log('trigger');
+
+				var str = $( "#shipping_methods option:selected" ).val();
+
+				if (undefined !== str) {
+                   
+                   var method =  str.substr(str.indexOf(".") + 1);
+                   
+                   if (method == 'NP2Sklad' || method == 'NP2Manager' ) {
+                     
+                     initFields();
+                     $("#Np2Sklad").show();
+					 $("#Np2Sklad").css('display','block');
+                     $("#np2street_block").css('display','none');
+                     $("#np2wh_block").show();
+                     $("#np2street_block").hide();
+					 requestWH('Np2Sklad');
+                     clearInterval(novaposhtaBe);
+				
+                   }
+                   else if (method == 'NP2Dveri' ) {
+                    
+                     
+                      initFields();
+                      $("#Np2Sklad").show();
+                      $("#np2wh_block").hide();
+                      $("#np2street_block").show();
+					  $("#np2street_block").css('display','block');
+					  requestWH('Np2Dveri');
+					  clearInterval(novaposhtaBe);
+					 
+					 	
+                   }
+                   else {
+                        $("#Np2Sklad").css('display','none');
+                        console.log(method);
+                        $("#np2-loader").hide();
+                   }
+				   console.log(method);
+               }
+         
+            } 
+			
+		var novaposhtaBe = setInterval(function(){
+			   trigger();
+		 }, 500);
+		
+		
+		// Создаем новый экземпляр MutationObserver
+		const observer = new MutationObserver(function(mutations) {
+		  // При изменении элемента с id "total" вызываем функцию trigger через 2 секунды
+		  setTimeout(function() {
+			trigger();
+		  }, 1300);
+		});
+
+		// Настраиваем наш экземпляр для того, чтобы отслеживать изменения атрибутов элемента с id "total"
+		const config = { attributes: true, childList: true, characterData: true };
+		observer.observe(document.getElementById("total"), config);
+			
+			
+            
+           
+		function updateList(data)
+			{
+				$("#np2_wh_select").html('<option></option>').hide();
+				
+                if (data.data.length>0) {
+                   
+				   var itm = "";
+					
+				   {if $ukrlang}
+				   
+				   
+				   $.each(data.data, function(key, wh) {
+                       
+             			itm += "<option>"+wh['Description']+"</option>"; 
+						itm += "<option>"+wh['DescriptionRu']+"</option>";			
+						
+                   });
+				    
+				   {else}
+				   
+				    $.each(data.data, function(key, wh) {
+                       itm += "<option>"+wh['DescriptionRu']+"</option>";	
+                    });
+				   
+								   
+				  {/if}
+				  
+				   $("#np2_wh_select").append(itm);	
+                } 
+                
+                else  {
+                  
+                     $("#np2_wh_select").empty().append(' <option></option>');
+                     
+                      }
+               
+			if (typeof $('#np2_wh_select').select2 == 'function') {
+				
+				 {if isset($order.params.shipping_params_2)}
+					 var curr_wh = '{$order.params.shipping_params_2|escape:'quotes'}';
+				 {else}
+					 var curr_wh =  $("[name='customer[address.shipping][street]']").val();
+				 {/if}
+				
+			    
+				$('#np2_wh_select option').filter( function () {
+			  	
+			    	return $(this).html().replace(/\s/g, '').replace(/([\'"])/g,'').toLowerCase() == curr_wh.replace(/\s/g, '').replace(/(['"])/g,'').toLowerCase();
+			    	
+				}).attr("selected", "selected");
+				
+				
+                 $('#np2_wh_select').select2({
+                    
+					dropdownAutoWidth : false,
+					placeholder: 'Подобрать отделение',
+					language: {
+						 noResults: function(){
+						   return "Поиск не дал результатов";
+					   },
+					  inputTooShort: function () {
+						return "Введите более 1 символа";
+					  }
+					}  
+					}); 
+				}        
+               
+                $("#np2_loader").hide();
+				requestNovaposhtaWarehouseSent = false;
+				$("#np2_wh_select").css('display', 'block');
+          
+            }
+            
+            function updateStreets(data)
+                {
+				
+				$("#np2_street_select").css('display', 'none');
+                $("#np2_street_select").empty();
+                $("#np2_street_select").append('<option></option>');
+                //console.log(data.data);
+			   
+				
+				var itm = "";
+				
+                if (data.data.length>0) {
+                    $.each(data.data, function(key, st) {
+					
+						itm += "<option>"+ st['Description'] +' '+ st['StreetsType'] + "</option>";	
+                        
+                        
+                    });
+                } 
+                else  {
+                  
+                     $("#np2_street_select").empty().append(' <option></option>');
+                    
+                }
+                
+				$("#np2_street_select").append(itm);
+               
+                if (typeof $('#np2_street_select').select2 == 'function') {
+				
+				{if isset($order.params.shipping_params_2)}
+			    	 var curr_st = '{$order.params.shipping_params_2|escape:'quotes'}';
+				{else}
+			    	 var curr_st =  $("[name='customer[address.shipping][street]']").val();
+				{/if}
+				
+				$('#np2_street_select option').filter( function () {
+					
+				   
+				   var array = curr_st.split(',');  
+                    
+                  /*
+                    if ($(this).html().replace(/\s/g, '').toUpperCase() == array[0].replace(/\s/g, '').toUpperCase() && array.length == 3 ){    
+                        var numberPattern = /\d+/g;
+            
+                         //console.log(array);
+                        $("#np2_housenum").val(array[1].match(numberPattern));
+                        
+                        $("#np2_appartament").val(array[2].match(numberPattern));
+                    }
+                    return $(this).html().replace(/\s/g, '').toUpperCase()== array[0].replace(/\s/g, '').toUpperCase();
+                    */
+					
+					
+				if( $(this).html() == array[0] && array != '' ) {
+                        
+                          
+                        if (typeof array[1]!="undefined") {    
+                            var house = array[1].split('.');
+                           $("#np2_housenum").val(house[1]);
+                        }
+                        
+                        if (typeof array[2]!="undefined") {
+                           var apprt = array[2].split('.');
+                           $("#np2_appartament").val(apprt[1]);
+                       }
+                        
+                        if  (typeof array[3]!="undefined") {   
+                            var floor = array[3].split('.');
+                          $("#np2_floor").val(floor[1]);
+                        }
+                        
+                        
+                        
+                    }
+                    
+                    
+					return $(this).html() == array[0];
+                    
+                    
+				}).attr("selected", "selected");
+				
+				
+                 $('#np2_street_select').select2({
+                   
+                     dropdownAutoWidth : false,
+							
+                            language: {
+                             noResults: function(){
+                                   return "Поиск не дал результатов";
+                               },
+                              inputTooShort: function () {
+                                return "Введите более 2 символов";
+                              }
+                            }  
+                           }); 
+                    }        
+               
+                $("#np2_loader").hide();
+				requestNovaposhtaWarehouseSent = false;
+                $("#np2_street_select").css('display', 'block');
+          
+            }
+            
+           function requestWH(method) {
+               
+			   
+					$("#np2_loader").show();
+					
+	   
+					var url = '?plugin=novaposhtabe&action=wherehouse';
+					var urlD = '?plugin=novaposhtabe&action=streets';
+					var city = $('select#np2_cities').val();
+					
+					//console.log(method+city);	 
+					
+					if(method == 'all' && city !='' &&  city !='Выберите город' && requestNovaposhtaWarehouseSent == false) {
+					  
+					   requestNovaposhtaWarehouseSent = true;
+					   
+					   $.post(
+								url,
+								{
+									city:   city 
+								},
+								updateList,
+								'json'
+								);
+					   
+					  
+
+						$.post(
+								urlD,
+								{
+									city:  $('select#np2_cities').val()
+								},
+									  updateStreets,
+								'json'
+								);      
+
+					} 
+
+					else if (method == 'Np2Sklad' && city !=''  &&  city !='Выберите город' && requestNovaposhtaWarehouseSent == false) {
+
+
+						requestNovaposhtaWarehouseSent = true;
+						$.post(
+								url,
+								{
+									city:   city
+								},
+								updateList,
+								'json'
+								);
+					}
+
+					else if (method == 'Np2Dveri' && city !='' &&  city !='Выберите город' &&  requestNovaposhtaWarehouseSent == false) {
+
+					requestNovaposhtaWarehouseSent = true;
+					
+					$.post(
+						urlD,
+						{
+							city:  city
+						},
+							  updateStreets,
+						'json'
+						);      
+					}
+					
+					
+					/*
+					else if (method == 'Np2Sklad' && city !=='Выберите город' && requestNovaposhtaWarehouseSent == false ) {
+
+					requestNovaposhtaWarehouseSent = true;
+					$.post(
+							url,
+							{
+								city:   city
+							},
+							updateList,
+							'json'
+							);
+					}
+
+					else if (method ==  'Np2Dveri' && city !=='Выберите город' && requestNovaposhtaWarehouseSent == false   ) {
+				
+					requestNovaposhtaWarehouseSent = true;
+					$.post(
+						urlD,
+						{
+							city:  city
+						},
+							  updateStreets,
+						'json'
+						);      
+					}*/
+
+			}
+			
+           
+           
+            
+           
+            $("#np2_cities").on('change', function() {
+                   
+
+				   $("#np2-loader").show();
+             
+                   if ($('select#np2_cities').val() != 'Выберите город')
+                
+                    $('input[name="customer[address.shipping][city]"]').val($("#np2_cities option:selected").val());
+					//$('.field-address-city input').val($("#np2_cities option:selected").val());
+                    $("#np2_housenum").val('');
+                    $("#np2_appartament").val('');
+                    
+					trigger();
+					$("#np2-loader").hide();            
+                     
+			});
+              
+            $("#np2_wh_select").on('change', function() { 
+                 $('.field-address-street input').val($("#np2_wh_select").val());
+            });
+            
+           
+            
+                       
+		//adress changes
+		function fillAddress(){
+			if ($("#np2_street_select").val()!=''){
+				var addr = $("#np2_street_select").val() +', д.';
+				addr += $("#np2_housenum").val();
+				addr += ', кв.';
+				addr += $("#np2_appartament").val();
+				addr += ', эт.';
+				addr += $("#np2_floor").val();
+				$("[name='customer[address.shipping][street]']").attr('value', addr);
+				$("#np2_shipping_param" ).attr('value', addr);
+			} else {
+				  $("#np2_shipping_param" ).attr('value', '');
+			}
+		}
+		
+		$("#np2_street_select").on('change', function() {
+			$("#np2_housenum").val('');
+			$("#np2_appartament").val('');
+			$("#np2_floor").val('');
+			fillAddress();
+		});
+		
+		$("#np2_housenum").on('change', function() {
+		   fillAddress();
+		});
+		
+		$("#np2_appartament").on('change', function() {
+		   fillAddress();
+		});
+	  
+		$("#np2_floor").on('change', function() {
+		   fillAddress();
+		});
+            
+        $("#orders-add-autocomplete").on('autocompleteclose',  function () {
+            
+            setTimeout(
+              function() 
+              {
+                $.order_edit.updateTotal();
+                //console.log('orders-add-autocomplete');
+              }, 1500);
+            }
+            
+        );
+            
+        //recheck fields after customer loaded    
+      $("#customer-autocomplete").blur(function () {
+           setTimeout(
+              function() 
+              {
+                trigger();
+             // console.log('customer-autocomplete');
+              }, 1500);
+            
+          
+        });
+          
+          //recheck fields after country changed
+        $('.field-address-country select').on('change', function(){
+                  
+                setTimeout(
+                   function() 
+                  {
+                    $.order_edit.updateTotal();
+                    trigger();
+                   // console.log('change-country');
+                  }, 1500);
+            })
+
+           
+        });
+        
+		
+        $('.np2-city-link').click(function(event) {
+				event.preventDefault();
+				//alert ('start');
+				var city = $(this).data('city');
+				
+				$('#np2_cities').val(city).trigger('change');
+				//alert ('stop');
+			});
+        
+		
+		 $('#order-edit-form').submit(function(e){
+                    
+                           
+                  var str = $( "#shipping_methods option:selected" ).val();
+                  var method = str.substr(str.indexOf(".") + 1);
+                  var rateid = str.substr(0, str.indexOf('.')); 
+                  
+                 {if isset($order.id)}
+                        var order = {$order.id};
+                      {else}
+                         var order = '';
+                  {/if}
+                                   
+                  if (method == 'NP2Sklad' || method == 'NP2Dveri' || method == 'NP2Manager' ) {
+                      var url = '?plugin=novaposhtabe&action=insert'; 
+                         
+                      var region = '';
+                      if ($( ".field-address-region select option:selected" ).val() != null) {
+                        region = $( ".field-address-region select option:selected" ).val();
+                      }
+                      
+                      var city = '';
+                      if ($("#np2_cities").val() != null) {
+                        city = $("#np2_cities").val();
+                      }
+                      
+                      var wharehouse = '';
+                      if ($("#np2_wh_select").val() != null) {
+                        wharehouse = $("#np2_wh_select").val();
+                      }
+                      
+                      
+                      var street = '';
+                      if ($("#np2_street_select").val() != null) {
+                        street = $('.field-address-street input').val();
+                      }
+                      
+                      var str = $( "#shipping_methods option:selected" ).val();
+               
+                     if (method == 'NP2Sklad' ||  method == 'NP2Manager' ) {
+                         var addr = wharehouse;
+                     } else {
+                         var addr = street;
+                     }
+                    
+                             
+                    if (order=='') {
+                        var zip = Date.now();
+                        $('.field-address-zip input').val(zip);
+                    } else {
+                         var zip =  $('.field-address-zip input').val();
+                    }
+                   
+                    var data = {
+                          "order" : order,
+                          "id" : rateid,
+                          "rate_id" : method, 
+                          "param1" : city,
+                          "param2" : addr,
+                          "city" : city,
+                          "region" : region,
+                          "country" : 'ukr',
+                          "street" : $('.field-address-street input').val(),
+                          "zip" : zip,
+                      };
+                      
+                    
+                      
+                     $.post( url, { params: data }  ).done(function( data ) {
+                           
+                          });
+                  }
+                
+            });
+      
+</script>
+
+
+<div id="Np2Sklad" style="display:none; ">
+
+      
+
+       <select name="npcity" id="np2_cities" style="min-width:80%;display:block">
+                        <option>Выберите город</option>
+                        {foreach $list as $city}
+                        {if isset($order.params.shipping_params_1)}
+                            {if $ukrlang}
+                                    <option value="{$city['Description']}" 
+									{if  $order.params.shipping_params_1 == $city['Description'] }selected{/if}
+									{if  $order.params.shipping_params_1 == $city['DescriptionRu'] }selected{/if}
+									>{$city['Description']}</option>
+                    
+                            {else}
+                                   <option value="{$city['DescriptionRu']}" 
+								   {if  $order.params.shipping_params_1 == $city['DescriptionRu'] }selected{/if}
+								   {if  $order.params.shipping_params_1 == $city['Description'] }selected{/if}
+								   >{$city['DescriptionRu']}</option>
+                    
+                            {/if}
+                            
+                        {else}
+                        
+                             {if $ukrlang}
+                                   <option value="{$city['Description']}" >{$city['Description']}</option>
+                            {else}
+                                  <option value="{$city['DescriptionRu']}" >{$city['DescriptionRu']}</option>
+                            {/if}
+                            
+                        {/if}
+                        {/foreach}
+        </select>
+		
+		{if $ukrlang}
+		<div style="display:inline-flex">
+			<a href="#" class="np2-city-link" data-city="Київ">Київ</a>
+			<a href="#" class="np2-city-link" data-city="Харків">Харків</a>
+			<a href="#" class="np2-city-link" data-city="Дніпро">Дніпро</a>
+			<a href="#" class="np2-city-link" data-city="Львів">Львів</a>
+			<a href="#" class="np2-city-link" data-city="Одеса">Одеса</a>
+			<a href="#" class="np2-city-link" data-city="Запоріжжя">Запоріжжя</a>
+		</div>
+		{else}
+		<div style="display:inline-flex">
+			<a href="#" class="np2-city-link" data-city="Киев">Киев</a>
+			<a href="#" class="np2-city-link" data-city="Харьков">Харьков</a>
+			<a href="#" class="np2-city-link" data-city="Днепр">Днепр</a>
+			<a href="#" class="np2-city-link" data-city="Львов">Львов</a>
+			<a href="#" class="np2-city-link" data-city="Одесса">Одесса</a>
+			<a href="#" class="np2-city-link" data-city="Запорожье">Запорожье</a>
+		</div>
+		{/if}
+
+        <div id="np2wh_block" style="display:none">    
+            <select id="np2_wh_select" style="min-width:80%;display:block">
+                          
+                                               <option></option>
+                       
+                                
+            </select><i class="icon16 loading" style="display:none;" id="np2_loader"></i>
+        </div>    
+        
+        <div id="np2street_block" style="display:none">
+        
+            <select id="np2_street_select" style="min-width:80%;display:block">
+                          
+                                               <option></option>
+                       
+                                
+            </select>
+            
+            
+            Д: <input type="text" size="15" name="np2_housenum"  id="np2_housenum" style="display:block;margin-top:10px"/>
+            
+            Кв: <input type="text" size="15" name="np2_appartament"  id="np2_appartament" style="display:block;margin-top:10px"/>
+    
+            Эт: <input type="number" size="15" name="np2_floor"  id="np2_floor" style="display:block;margin-top:10px"/>
+    
+           
+      
+        </div>
+      
+<span class="np2error"></span>
+</div>  
+
+
+
+
+
+<style>
+
+.np2-city-link:not(:last-child) {
+  margin-right: 10px;
+}
+#Np2Sklad {
+    font-size: 0.8em;
+    width: 300px;
+    float: right;
+    margin: 10px 0 0;
+}
+
+#np2_wh_select , #np2_cities
+
+{
+max-width:300px;
+width:300px;
+display:block;
+font-size:1em; 
+}
+
+.select2-container{
+        margin-top: 2px;
+        display:block;
+        min-width:300px;
+        max-width:60%;
+}
+
+#np2_housenum, #np2_appartament, #np2_floor {
+       max-width: 50px;
+        display:inline-block !important; 
+        clear:right;
+}
+
+.np2error {
+    color:red;
+    font-weight:bold;
+    display:none;
+}      
+     
+
+</style>
